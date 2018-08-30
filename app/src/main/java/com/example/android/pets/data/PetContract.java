@@ -9,17 +9,17 @@ public final class PetContract {
 
     }
 
-    public static final class PetEntry implements BaseColumns {
-        public static final String TABLE_NAME = "pets.db";
+    public final static class PetEntry implements BaseColumns {
+        public final static String TABLE_NAME = "pets";
 
-        public static final String COLUMN_PET_ID = BaseColumns._ID;
-        public static final String COLUMN_PET_NAME = "name";
-        public static final String COLUMN_PET_BREED = "breed";
-        public static final String COLUMN_PET_GENDER = "gender";
-        public static final String COLUMN_PET_WEIGHT = "weight";
+        public final static String _ID = BaseColumns._ID;
+        public final static String COLUMN_PET_NAME = "name";
+        public final static String COLUMN_PET_BREED = "breed";
+        public final static String COLUMN_PET_GENDER = "gender";
+        public final static String COLUMN_PET_WEIGHT = "weight";
 
-        public static final int GENDER_UNKNOWN = 0;
-        public static final int GENDER_FEMALE = 1;
-        public static final int GENDER_MALE = 2;
+        public final static int GENDER_UNKNOWN = 0;
+        public final static int GENDER_FEMALE = 1;
+        public final static int GENDER_MALE = 2;
     }
 }
