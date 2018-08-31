@@ -1,11 +1,13 @@
 package com.example.android.pets;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +20,9 @@ import com.example.android.pets.data.PetsDbHelper;
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
+    private static final String TAG = CatalogActivity.class.getSimpleName();
+    private SQLiteDatabase db;
+    private PetsDbHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +49,10 @@ public class CatalogActivity extends AppCompatActivity {
     private void displayDatabaseInfo() {
         // To access our database, we instantiate our subclass of SQLiteOpenHelper
         // and pass the context, which is the current activity.
-        PetsDbHelper mDbHelper = new PetsDbHelper(this);
+        mDbHelper = new PetsDbHelper(this);
 
         // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        db = mDbHelper.getReadableDatabase();
 
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
@@ -72,6 +77,24 @@ public class CatalogActivity extends AppCompatActivity {
         return true;
     }
 
+    private void insertPet() {
+        try {
+            ContentValues values = new ContentValues();
+            values.put(PetEntry.COLUMN_PET_NAME, "Toto");
+            values.put(PetEntry.COLUMN_PET_BREED, "Terrier");
+            values.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDER_MALE);
+            values.put(PetEntry.COLUMN_PET_WEIGHT, 7);
+            long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
+            if (newRowId != -1) {
+                displayDatabaseInfo();
+            } else {
+                Log.i(TAG, "Error inserting dummy data");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error inserting dummy data", e);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
@@ -79,6 +102,7 @@ public class CatalogActivity extends AppCompatActivity {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
                 // Do nothing for now
+                insertPet();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
