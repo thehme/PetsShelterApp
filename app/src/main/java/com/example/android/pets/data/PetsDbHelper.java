@@ -8,7 +8,7 @@ import com.example.android.pets.data.PetContract.PetEntry;
 // subclassing SQLiteOPenHelper
 public class PetsDbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "pets.db";
+    public static final String DATABASE_NAME = "shelter.db";
 
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + PetEntry.TABLE_NAME + " (" +
