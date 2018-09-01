@@ -39,7 +39,7 @@ public class CatalogActivity extends AppCompatActivity {
             }
         });
 
-        displayDatabaseInfo();
+        mDbHelper = new PetsDbHelper(this);
     }
 
     /**
@@ -78,6 +78,9 @@ public class CatalogActivity extends AppCompatActivity {
     }
 
     private void insertPet() {
+        // get db in writable mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
         try {
             ContentValues values = new ContentValues();
             values.put(PetEntry.COLUMN_PET_NAME, "Toto");
@@ -103,6 +106,7 @@ public class CatalogActivity extends AppCompatActivity {
             case R.id.action_insert_dummy_data:
                 // Do nothing for now
                 insertPet();
+                displayDatabaseInfo();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
