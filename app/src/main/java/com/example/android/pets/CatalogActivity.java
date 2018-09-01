@@ -60,7 +60,13 @@ public class CatalogActivity extends AppCompatActivity {
         // Create and/or open a database to read from it
         db = mDbHelper.getReadableDatabase();
 
-        String[] projection = { PetEntry._ID };
+        String[] projection = {
+                PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED,
+                PetEntry.COLUMN_PET_GENDER,
+                PetEntry.COLUMN_PET_WEIGHT
+        };
 
         Cursor cursor = db.query(PetEntry.TABLE_NAME, projection, null, null, null, null, null);
 
