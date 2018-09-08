@@ -7,6 +7,7 @@ public final class PetContract {
     private static final String TAG = PetContract.class.getSimpleName();
     public static final String CONTENT_AUTHORITY = "com.example.android.pets";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    public static final String PATH_PETS = "pets";
 
     private PetContract() {
 
