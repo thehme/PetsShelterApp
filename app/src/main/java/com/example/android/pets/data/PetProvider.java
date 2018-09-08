@@ -171,6 +171,10 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
+        if (contentValues.size() == 0) {
+            return 0;
+        }
+
         validateValuesForUpdate(contentValues);
         final int match = sUriMatcher.match(uri);
         switch (match) {
