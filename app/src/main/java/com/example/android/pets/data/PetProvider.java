@@ -191,13 +191,12 @@ public class PetProvider extends ContentProvider {
 
     private int updatePet(ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        int num = database.update(
+        return database.update(
                 PetEntry.TABLE_NAME,
                 values,
                 selection,
                 selectionArgs
         );
-        return num;
     }
 
     /**
