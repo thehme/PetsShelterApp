@@ -1,10 +1,12 @@
 package com.example.android.pets.data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 public final class PetContract {
     private static final String TAG = PetContract.class.getSimpleName();
     public static final String CONTENT_AUTHORITY = "com.example.android.pets";
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     private PetContract() {
 
