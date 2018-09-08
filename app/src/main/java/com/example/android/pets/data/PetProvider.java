@@ -105,11 +105,6 @@ public class PetProvider extends ContentProvider {
     }
 
     private void validateValues(ContentValues values) {
-        boolean valid = false;
-//        public final static String COLUMN_PET_NAME = "name"; not null
-//        public final static String COLUMN_PET_BREED = "breed"; ok null
-//        public final static String COLUMN_PET_GENDER = "gender"; not null
-//        public final static String COLUMN_PET_WEIGHT = "weight"; ok null
         String name = values.getAsString(PetEntry.COLUMN_PET_NAME);
         Integer gender = values.getAsInteger(PetEntry.COLUMN_PET_GENDER);
         Integer weight = values.getAsInteger(PetEntry.COLUMN_PET_WEIGHT);
@@ -149,12 +144,56 @@ public class PetProvider extends ContentProvider {
         return ContentUris.withAppendedId(uri, id);
     }
 
+
+    private void validateValuesForUpdate(ContentValues values) {
+        if (values.containsKey(PetEntry.COLUMN_PET_NAME)) {
+            String name = values.getAsString(PetEntry.COLUMN_PET_NAME);
+            if (name == null || TextUtils.isEmpty(name)) {
+                throw new IllegalArgumentException("Pet requires a name");
+            }
+        }
+        if (values.containsKey(PetEntry.COLUMN_PET_GENDER)) {
+            Integer gender = values.getAsInteger(PetEntry.COLUMN_PET_GENDER);
+            if (gender == null && !PetEntry.isValidGender(gender)) {
+                throw new IllegalArgumentException("Pet requires a gender");
+            }
+        }
+        if (values.containsKey(PetEntry.COLUMN_PET_WEIGHT)) {
+            Integer weight = values.getAsInteger(PetEntry.COLUMN_PET_WEIGHT);
+            if (weight != null && weight < 0) {
+                throw new IllegalArgumentException("Pet requires a non negative weight");
+            }
+        }
+    }
+
     /**
      * Updates the data at the given selection and selection arguments, with the new ContentValues.
      */
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
-        return 0;
+        validateValuesForUpdate(contentValues);
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                return updatePet(contentValues, selection, selectionArgs);
+            case PET_ID:
+                selection = PetEntry._ID + "=?";
+                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                return updatePet(contentValues, selection, selectionArgs);
+            default:
+                throw  new IllegalArgumentException("update is not supported for " + uri);
+        }
+    }
+
+    private int updatePet(ContentValues values, String selection, String[] selectionArgs) {
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        int num = database.update(
+                PetEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs
+        );
+        return num;
     }
 
     /**
