@@ -7,12 +7,15 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
+
 import com.example.android.pets.data.PetContract.PetEntry;
 
 /**
  * {@link ContentProvider} for Pets app.
  */
 public class PetProvider extends ContentProvider {
+    private static final String TAG = PetProvider.class.getSimpleName();
     private PetsDbHelper mDbHelper;
 
     /** Tag for the log messages */
@@ -90,7 +93,38 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        return null;
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                return insertPet(uri, contentValues);
+            default:
+                // can't insert on row where pet already exists
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        }
+    }
+
+    /**
+     * Insert a pet into the database with the given content values. Return the new content URI
+     * for that specific row in the database.
+     */
+    private Uri insertPet(Uri uri, ContentValues values) {
+
+        // TODO: Insert a new pet into the pets database table with the given ContentValues
+        // Get writable database
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+        long id = database.insert(
+                PetEntry.TABLE_NAME,
+                null,
+                values
+        );
+        if (id == -1) {
+            Log.e(TAG, "Error inserting new pet into db for " + uri);
+            return null;
+        }
+        // Once we know the ID of the new row in the table,
+        // return the new URI with the ID appended to the end of it
+        return ContentUris.withAppendedId(uri, id);
     }
 
     /**
