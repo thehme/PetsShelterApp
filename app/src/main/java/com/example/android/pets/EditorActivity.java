@@ -125,7 +125,13 @@ public class EditorActivity extends AppCompatActivity {
         } else if (genderString.equals("male")) {
             genderInt = 2;
         }
-        int weightInt = Integer.parseInt(weightString);
+
+        int weightInt = 0;
+        try {
+            weightInt = Integer.parseInt(weightString);
+        } catch (NumberFormatException e) {
+            Log.i(TAG, "Weight left emtpy, setting to 0. " + e);
+        }
 
         try {
             ContentValues values = new ContentValues();

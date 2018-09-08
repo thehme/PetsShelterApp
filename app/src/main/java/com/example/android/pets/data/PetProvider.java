@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.android.pets.data.PetContract.PetEntry;
@@ -103,11 +104,32 @@ public class PetProvider extends ContentProvider {
         }
     }
 
+    private void validateValues(ContentValues values) {
+        boolean valid = false;
+//        public final static String COLUMN_PET_NAME = "name"; not null
+//        public final static String COLUMN_PET_BREED = "breed"; ok null
+//        public final static String COLUMN_PET_GENDER = "gender"; not null
+//        public final static String COLUMN_PET_WEIGHT = "weight"; ok null
+        String name = values.getAsString(PetEntry.COLUMN_PET_NAME);
+        Integer gender = values.getAsInteger(PetEntry.COLUMN_PET_GENDER);
+        Integer weight = values.getAsInteger(PetEntry.COLUMN_PET_WEIGHT);
+        if (name == null || TextUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Pet requires a name");
+        }
+        if (gender == null && !PetEntry.isValidGender(gender)) {
+            throw new IllegalArgumentException("Pet requires a gender");
+        }
+        if (weight != null && weight < 0) {
+            throw new IllegalArgumentException("Pet requires a non negative weight");
+        }
+    }
+
     /**
      * Insert a pet into the database with the given content values. Return the new content URI
      * for that specific row in the database.
      */
     private Uri insertPet(Uri uri, ContentValues values) {
+        validateValues(values);
 
         // TODO: Insert a new pet into the pets database table with the given ContentValues
         // Get writable database
