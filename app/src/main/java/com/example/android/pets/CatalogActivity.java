@@ -3,7 +3,6 @@ package com.example.android.pets;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -22,8 +21,6 @@ import com.example.android.pets.data.PetsDbHelper;
  */
 public class CatalogActivity extends AppCompatActivity {
     private static final String TAG = CatalogActivity.class.getSimpleName();
-    private SQLiteDatabase db;
-    private PetsDbHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +36,6 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        mDbHelper = new PetsDbHelper(this);
     }
 
     @Override
@@ -54,10 +49,6 @@ public class CatalogActivity extends AppCompatActivity {
      * the pets database.
      */
     private void displayDatabaseInfo() {
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-        mDbHelper = new PetsDbHelper(this);
-
         String[] projection = {
                 PetEntry._ID,
                 PetEntry.COLUMN_PET_NAME,
@@ -120,21 +111,16 @@ public class CatalogActivity extends AppCompatActivity {
     }
 
     private void insertPet() {
-        // get db in writable mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
         try {
             ContentValues values = new ContentValues();
             values.put(PetEntry.COLUMN_PET_NAME, "Toto");
             values.put(PetEntry.COLUMN_PET_BREED, "Terrier");
             values.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDER_MALE);
             values.put(PetEntry.COLUMN_PET_WEIGHT, 7);
-            long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
-            if (newRowId != -1) {
-                displayDatabaseInfo();
-            } else {
-                Log.i(TAG, "Error inserting dummy data");
-            }
+            Uri uri = getContentResolver().insert(
+                    PetEntry.CONTENT_URI,
+                    values
+            );
         } catch (Exception e) {
             Log.e(TAG, "Error inserting dummy data", e);
         }
