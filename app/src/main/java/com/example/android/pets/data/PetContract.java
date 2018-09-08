@@ -4,6 +4,7 @@ import android.provider.BaseColumns;
 
 public final class PetContract {
     private static final String TAG = PetContract.class.getSimpleName();
+    public static final String CONTENT_AUTHORITY = "com.example.android.pets";
 
     private PetContract() {
 
