@@ -22,7 +22,7 @@ public class PetProvider extends ContentProvider {
         // TODO: Create and initialize a PetDbHelper object to gain access to the pets database.
         // Make sure the variable is a global variable, so it can be referenced from other
         // ContentProvider methods.
-        mDbHelper = new PetsDbHelper(this);
+        mDbHelper = new PetsDbHelper(getContext());
         return true;
     }
 
