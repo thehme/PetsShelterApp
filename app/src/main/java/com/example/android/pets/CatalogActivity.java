@@ -37,6 +37,13 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        // find reference to list view
+        ListView listView = (ListView) findViewById(R.id.pets_list);
+
+        // find empty view
+        View emptyView = findViewById(R.id.empty_view);
+        listView.setEmptyView(emptyView);
     }
 
     @Override
@@ -95,6 +102,16 @@ public class CatalogActivity extends AppCompatActivity {
             );
         } catch (Exception e) {
             Log.e(TAG, "Error inserting dummy data", e);
+        }
+    }
+
+    private void deletePets() {
+        try {
+            int numDeleted = getContentResolver().delete(
+                    PetEntry.CONTENT_URI, null, null
+            );
+        } catch (Exception e) {
+            Log.e(TAG, "Error deleting data", e);
         }
     }
 

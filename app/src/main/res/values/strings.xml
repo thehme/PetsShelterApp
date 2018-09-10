@@ -62,4 +62,6 @@
     <string name="editor_insert_failure">Failed to insert pet</string>
     <string name="pet_name">name</string>
     <string name="pet_breed">breed</string>
+    <string name="empty_view_title_text">It\'s a bit lonely here...</string>
+    <string name="empty_view_subtitle_text">Get started by adding a pet</string>
 </resources>
