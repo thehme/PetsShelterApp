@@ -1,6 +1,7 @@
 package com.example.android.pets.data;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -18,9 +19,6 @@ import com.example.android.pets.data.PetContract.PetEntry;
 public class PetProvider extends ContentProvider {
     private static final String TAG = PetProvider.class.getSimpleName();
     private PetsDbHelper mDbHelper;
-
-    /** Tag for the log messages */
-    public static final String LOG_TAG = PetProvider.class.getSimpleName();
 
     private static final int PETS = 100;
     private static final int PET_ID = 101;
@@ -86,6 +84,9 @@ public class PetProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
+
+        // so listener, CatalogActivity, is notified when uri changes
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -139,6 +140,12 @@ public class PetProvider extends ContentProvider {
             Log.e(TAG, "Error inserting new pet into db for " + uri);
             return null;
         }
+
+        // notify all listeners that a change has occurred to uri
+        // second parameter is optional observer, but passing null makes it so that
+        // by default cursor adapter object is notified
+        getContext().getContentResolver().notifyChange(uri, null);
+
         // Once we know the ID of the new row in the table,
         // return the new URI with the ID appended to the end of it
         return ContentUris.withAppendedId(uri, id);
