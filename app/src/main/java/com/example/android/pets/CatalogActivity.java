@@ -1,7 +1,10 @@
 package com.example.android.pets;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,16 +15,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
-import com.example.android.pets.data.PetsDbHelper;
 
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity {
+public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = CatalogActivity.class.getSimpleName();
+    private static final int URL_LOADER = 0;
+    private PetCursorAdaptor petCursorAdaptor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,41 +47,17 @@ public class CatalogActivity extends AppCompatActivity {
         // find empty view
         View emptyView = findViewById(R.id.empty_view);
         listView.setEmptyView(emptyView);
+
+        petCursorAdaptor = new PetCursorAdaptor(this, null);
+        listView.setAdapter(petCursorAdaptor);
+
+        // initialize loader
+        getLoaderManager().initLoader(URL_LOADER, null, this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        displayDatabaseInfo();
-    }
-
-    /**
-     * Temporary helper method to display information in the onscreen TextView about the state of
-     * the pets database.
-     */
-    private void displayDatabaseInfo() {
-        String[] projection = {
-                PetEntry._ID,
-                PetEntry.COLUMN_PET_NAME,
-                PetEntry.COLUMN_PET_BREED,
-                PetEntry.COLUMN_PET_GENDER,
-                PetEntry.COLUMN_PET_WEIGHT
-        };
-
-        Cursor cursor = getContentResolver().query(
-                PetEntry.CONTENT_URI, // to get entire pets table
-                projection,
-                null,
-                null,
-                null
-        );
-
-        // find reference to list view
-        ListView listView = (ListView) findViewById(R.id.pets_list);
-        // create a new adaptor
-        PetCursorAdaptor petCursorAdaptor = new PetCursorAdaptor(this, cursor);
-        // attach cursor adapter to ListView
-        listView.setAdapter(petCursorAdaptor);
     }
 
     @Override
@@ -123,7 +102,6 @@ public class CatalogActivity extends AppCompatActivity {
             case R.id.action_insert_dummy_data:
                 // Do nothing for now
                 insertPet();
-                displayDatabaseInfo();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
@@ -131,5 +109,40 @@ public class CatalogActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+        String[] projection = {
+                PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED,
+                PetEntry.COLUMN_PET_GENDER,
+                PetEntry.COLUMN_PET_WEIGHT
+        };
+
+        switch (loaderId) {
+            case URL_LOADER:
+                return new CursorLoader(
+                    this,
+                    PetEntry.CONTENT_URI,
+                    projection,
+                    null,
+                    null,
+                    null
+                );
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        petCursorAdaptor.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        petCursorAdaptor.swapCursor(null);
     }
 }
