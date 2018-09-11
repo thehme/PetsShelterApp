@@ -20,6 +20,9 @@ public class PetProvider extends ContentProvider {
     private static final String TAG = PetProvider.class.getSimpleName();
     private PetsDbHelper mDbHelper;
 
+    // This cursor will hold the result of the query
+    private Cursor cursor;
+
     private static final int PETS = 100;
     private static final int PET_ID = 101;
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -49,9 +52,6 @@ public class PetProvider extends ContentProvider {
                         String sortOrder) {
         // Get readable database
         SQLiteDatabase database = mDbHelper.getReadableDatabase();
-
-        // This cursor will hold the result of the query
-        Cursor cursor;
 
         // Figure out if the URI matcher can match the URI to a specific code
         int match = sUriMatcher.match(uri);
@@ -98,7 +98,9 @@ public class PetProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PETS:
-                return insertPet(uri, contentValues);
+                Uri uriResult = insertPet(uri, contentValues);
+                cursor.setNotificationUri(getContext().getContentResolver(), uri);
+                return uriResult;
             default:
                 // can't insert on row where pet already exists
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
@@ -186,24 +188,28 @@ public class PetProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PETS:
-                return updatePet(contentValues, selection, selectionArgs);
+                return updatePet(uri, contentValues, selection, selectionArgs);
             case PET_ID:
                 selection = PetEntry._ID + "=?";
                 selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
-                return updatePet(contentValues, selection, selectionArgs);
+                return updatePet(uri, contentValues, selection, selectionArgs);
             default:
                 throw  new IllegalArgumentException("update is not supported for " + uri);
         }
     }
 
-    private int updatePet(ContentValues values, String selection, String[] selectionArgs) {
+    private int updatePet(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        return database.update(
+        int updatedNum = database.update(
                 PetEntry.TABLE_NAME,
                 values,
                 selection,
                 selectionArgs
         );
+        if (updatedNum > 0) {
+            cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
+        return updatedNum;
     }
 
     /**
@@ -214,23 +220,27 @@ public class PetProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PETS:
-                return deletePet(selection, selectionArgs);
+                return deletePet(uri, selection, selectionArgs);
             case PET_ID:
                 selection = PetEntry._ID + "=?";
                 selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
-                return deletePet(selection, selectionArgs);
+                return deletePet(uri,selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("delete no supported for " + uri);
         }
     }
 
-    private int deletePet(String selection, String[] selectionArgs) {
+    private int deletePet(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        return database.delete(
+        int deletedNum = database.delete(
                 PetEntry.TABLE_NAME,
                 selection,
                 selectionArgs
         );
+        if (deletedNum > 0) {
+            cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
+        return deletedNum;
     }
 
     /**
