@@ -15,10 +15,12 @@
  */
 package com.example.android.pets;
 
-import android.app.Activity;
+import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Loader;
+import android.database.Cursor;
+import android.content.CursorLoader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -33,17 +35,14 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import com.example.android.pets.data.PetContract.PetEntry;
-import com.example.android.pets.data.PetsDbHelper;
 
 /**
  * Allows user to create a new pet or edit an existing one.
  */
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = EditorActivity.class.getSimpleName();
-    private SQLiteDatabase db;
-    private PetsDbHelper mDbHelper;
+    private static final int URL_LOADER = 0;
 
     /** EditText field to enter the pet's name */
     private EditText mNameEditText;
@@ -57,11 +56,9 @@ public class EditorActivity extends AppCompatActivity {
     /** EditText field to enter the pet's gender */
     private Spinner mGenderSpinner;
 
-    /**
-     * Gender of the pet. The possible values are:
-     * 0 for unknown gender, 1 for male, 2 for female.
-     */
     private int mGender = 0;
+
+    private Uri mCurrentPetUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,9 +66,9 @@ public class EditorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_editor);
 
         Intent intent = getIntent();
-        Uri uri = intent.getData();
+        mCurrentPetUri = intent.getData();
 
-        if (uri != null) {
+        if (mCurrentPetUri != null) {
             setTitle(R.string.edit_pet);
         } else {
             setTitle(R.string.editor_activity_title_new_pet);
@@ -84,6 +81,9 @@ public class EditorActivity extends AppCompatActivity {
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
 
         setupSpinner();
+
+        // initialize loader
+        getLoaderManager().initLoader(URL_LOADER, null, this);
     }
 
     /**
@@ -195,5 +195,53 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+        String[] projection = {
+                PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED,
+                PetEntry.COLUMN_PET_GENDER,
+                PetEntry.COLUMN_PET_WEIGHT
+        };
+        return new CursorLoader(
+                this,
+                mCurrentPetUri,
+                projection,
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if(cursor.moveToFirst()) {
+            // get data from current cursor item
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(PetEntry.COLUMN_PET_NAME));
+            String breed = cursor.getString(cursor.getColumnIndexOrThrow(PetEntry.COLUMN_PET_BREED));
+            int gender = cursor.getInt(cursor.getColumnIndexOrThrow(PetEntry.COLUMN_PET_GENDER));
+            int weight = cursor.getInt(cursor.getColumnIndexOrThrow(PetEntry.COLUMN_PET_WEIGHT));
+            mNameEditText.setText(name);
+            mBreedEditText.setText(breed);
+            if (gender == PetEntry.GENDER_UNKNOWN) {
+                mGenderSpinner.setSelection(0);
+            } else if (gender == PetEntry.GENDER_FEMALE) {
+                mGenderSpinner.setSelection(1);
+            } else {
+                mGenderSpinner.setSelection(2);
+            }
+            mWeightEditText.setText(Integer.toString(weight));
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mNameEditText.setText("");
+        mBreedEditText.setText("");
+        mGenderSpinner.setSelection(0);
+        mWeightEditText.setText("");
     }
 }
