@@ -125,7 +125,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         });
     }
 
-    private void insertPet() {
+    private void savePet() {
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
         String weightString = mWeightEditText.getText().toString().trim();
@@ -151,16 +151,32 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             values.put(PetEntry.COLUMN_PET_GENDER, genderInt);
             values.put(PetEntry.COLUMN_PET_WEIGHT, weightInt);
 
-            Uri uri = getContentResolver().insert(
-                    PetEntry.CONTENT_URI,
-                    values
-            );
-            if (uri == null) {
-                Log.i(TAG, "Error inserting dummy data");
-                Toast.makeText(this, R.string.editor_insert_failure, Toast.LENGTH_SHORT).show();
+            if (mCurrentPetUri == null) {
+                Uri uri = getContentResolver().insert(
+                        PetEntry.CONTENT_URI,
+                        values
+                );
+                if (uri == null) {
+                    Log.i(TAG, "Error inserting dummy data");
+                    Toast.makeText(this, R.string.editor_insert_failure, Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.i(TAG, "New data inserted");
+                    Toast.makeText(this, R.string.editor_insert_success, Toast.LENGTH_SHORT).show();
+                }
             } else {
-                Log.i(TAG, "New data inserted");
-                Toast.makeText(this, R.string.editor_insert_success, Toast.LENGTH_SHORT).show();
+                int numUpdated = getContentResolver().update(
+                        mCurrentPetUri,
+                        values,
+                        null,
+                        null
+                );
+                if (numUpdated > 0) {
+                    Log.i(TAG, "Pet updated successfully");
+                    Toast.makeText(this, R.string.editor_update_success, Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.i(TAG, "Error updating pet data");
+                    Toast.makeText(this, R.string.editor_update_failure, Toast.LENGTH_SHORT).show();
+                }
             }
         } catch (Exception e) {
             Log.e(TAG, "Error saving to db", e);
@@ -181,7 +197,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                insertPet();
+                savePet();
                 finish();
                 return true;
             // Respond to a click on the "Delete" menu option
@@ -218,7 +234,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             // get data from current cursor item
             String name = cursor.getString(cursor.getColumnIndexOrThrow(PetEntry.COLUMN_PET_NAME));
             String breed = cursor.getString(cursor.getColumnIndexOrThrow(PetEntry.COLUMN_PET_BREED));
