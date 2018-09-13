@@ -100,16 +100,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         }
     }
 
-    private void deletePets() {
-        try {
-            int numDeleted = getContentResolver().delete(
-                    PetEntry.CONTENT_URI, null, null
-            );
-        } catch (Exception e) {
-            Log.e(TAG, "Error deleting data", e);
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
