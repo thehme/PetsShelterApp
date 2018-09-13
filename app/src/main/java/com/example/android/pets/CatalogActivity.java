@@ -161,4 +161,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     public void onLoaderReset(Loader<Cursor> loader) {
         petCursorAdaptor.swapCursor(null);
     }
+
+
 }
