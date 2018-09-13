@@ -207,7 +207,10 @@ public class PetProvider extends ContentProvider {
         );
         Log.i(TAG, "updated some pet: " + updatedNum);
         if (updatedNum > 0) {
-            cursor.setNotificationUri(getContext().getContentResolver(), uri);
+            // notify all listeners that a change has occurred to uri
+            // second parameter is optional observer, but passing null makes it so that
+            // by default cursor adapter object is notified
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return updatedNum;
     }
@@ -239,7 +242,10 @@ public class PetProvider extends ContentProvider {
         );
         Log.i(TAG, "deleted some pet: " + deletedNum);
         if (deletedNum > 0) {
-            cursor.setNotificationUri(getContext().getContentResolver(), uri);
+            // notify all listeners that a change has occurred to uri
+            // second parameter is optional observer, but passing null makes it so that
+            // by default cursor adapter object is notified
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return deletedNum;
     }
