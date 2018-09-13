@@ -237,7 +237,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             case R.id.action_delete:
                 // Do nothing for now
                 showDeleteConfirmationDialog();
-                finish();
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
@@ -403,5 +402,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         } catch (Exception e) {
             Log.e(TAG, "Error deleting data", e);
         }
+        // close activity
+        finish();
     }
 }
