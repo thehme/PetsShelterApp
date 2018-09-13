@@ -389,7 +389,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         try {
             if (mCurrentPetUri != null) {
                 int numDeleted = getContentResolver().delete(
-                        PetEntry.CONTENT_URI, null, null
+                        mCurrentPetUri, null, null
                 );
                 if (numDeleted > 0) {
                     Log.i(TAG, "pet deleted successfully");
@@ -399,10 +399,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                     Toast.makeText(this, R.string.editor_delete_pet_failed, Toast.LENGTH_SHORT).show();
                 }
             }
+            // Close the activity
+            finish();
         } catch (Exception e) {
             Log.e(TAG, "Error deleting data", e);
         }
-        // close activity
-        finish();
     }
 }
