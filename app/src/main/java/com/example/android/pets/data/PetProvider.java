@@ -205,6 +205,7 @@ public class PetProvider extends ContentProvider {
                 selection,
                 selectionArgs
         );
+        Log.i(TAG, "updated some pet: " + updatedNum);
         if (updatedNum > 0) {
             cursor.setNotificationUri(getContext().getContentResolver(), uri);
         }
@@ -236,6 +237,7 @@ public class PetProvider extends ContentProvider {
                 selection,
                 selectionArgs
         );
+        Log.i(TAG, "deleted some pet: " + deletedNum);
         if (deletedNum > 0) {
             cursor.setNotificationUri(getContext().getContentResolver(), uri);
         }
