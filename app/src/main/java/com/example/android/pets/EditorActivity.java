@@ -83,6 +83,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         if (mCurrentPetUri != null) {
             setTitle(R.string.edit_pet);
+            // Invalidate the options menu, so the "Delete" menu option can be hidden.
+            // (It doesn't make sense to delete a pet that hasn't been created yet.)
+            invalidateOptionsMenu();
         } else {
             setTitle(R.string.editor_activity_title_new_pet);
         }
@@ -202,6 +205,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         } catch (Exception e) {
             Log.e(TAG, "Error saving to db", e);
         }
+    }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        // If this is a new pet, hide the "Delete" menu item.
+        if (mCurrentPetUri == null) {
+            MenuItem menuItem = menu.findItem(R.id.action_delete);
+            menuItem.setVisible(false);
+        }
+        return true;
     }
 
     @Override
