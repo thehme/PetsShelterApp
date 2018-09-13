@@ -83,11 +83,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         if (mCurrentPetUri != null) {
             setTitle(R.string.edit_pet);
+            // initialize loader
+            getLoaderManager().initLoader(URL_LOADER, null, this);
+        } else {
+            setTitle(R.string.editor_activity_title_new_pet);
             // Invalidate the options menu, so the "Delete" menu option can be hidden.
             // (It doesn't make sense to delete a pet that hasn't been created yet.)
             invalidateOptionsMenu();
-        } else {
-            setTitle(R.string.editor_activity_title_new_pet);
         }
 
         // Find all relevant views that we will need to read user input from
@@ -103,9 +105,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mGenderSpinner.setOnTouchListener(mTouchListener);
 
         setupSpinner();
-
-        // initialize loader
-        getLoaderManager().initLoader(URL_LOADER, null, this);
     }
 
     /**
